@@ -262,9 +262,7 @@
             function generateList(){
                 counter.innerHTML = ''+addresses.length+' address(es) in list';
                 textarea.value = addresses.join('\n');
-                
                 detailCont.innerHTML = '';
-                let arrayLength = addresses.length;
                 for(i=0;i<addresses.length;i++){
                     if(addresses[i] === undefined){
                         return

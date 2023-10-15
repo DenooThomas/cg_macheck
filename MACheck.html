@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>MACheck</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400&display=swap" rel="stylesheet">
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                background-color: #105E82;
+                font-family: 'Open Sans', sans-serif;
+                transition: 0.3s ease-in-out;
+                overflow-x: hidden;
+
+            }
+
+            nav {
+                width: 100vw;
+                height: 200px;
+                padding-left: 40px;
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+            }
+            .logo {
+                height: 100px;
+            }
+
+            .wrapper {
+                width:  100vw;
+                display: flex;
+                flex-flow: column nowrap;
+                justify-content: flex-start;
+                align-items: center;
+            }
+
+            .mainCont {
+                width: 100%;
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: center;
+            }
+            .inputCont {
+                min-width: 40%;
+                display: flex;
+                flex-flow: column nowrap;
+                justify-content: space-between;
+            }
+            
+
+            #form {
+                width: 100%;
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: space-between;
+            }
+
+            #inputField {
+                width: 100%;
+                height: auto;
+                padding: 20px;
+                border-radius: 10px;
+                border: 2px solid transparent;
+                font-size: 2rem;
+                letter-spacing: 3px;
+            }
+            #inputField:focus, .textarea:focus, .button:focus{
+                outline: none;
+                border: 2px solid #32abe3;
+            }
+
+            .button {
+                min-width: 100px;
+                min-height: 100px;
+                font-size: 1.5rem;
+                margin-left: 25px;
+                border-radius: 50%;
+                background-color: white;
+                border: 2px solid #32abe3;
+                color: #28282B;
+                letter-spacing: 2px;
+                box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+            }
+            .button:hover{
+                background-color: #32abe3;
+                border: 2px solid white;
+                color: white;
+                box-shadow: none;
+            }
+
+            .errorLog {
+                margin-top: 40px;
+                height: 80px;
+                padding: 20px;
+                border: 1px solid white;
+                border-radius: 10px;
+                display: flex;
+                flex-flow: column nowrap;
+                justify-content: center;
+            }
+            .errorTxt {
+                font-size: 2rem;
+                text-align: center;
+                color: white;
+            }
+
+            .error{
+                border: 2px solid white;
+                background-color: #D2042D;
+                box-shadow: #DC143C 0px 5px 15px;
+                color: white;
+            }
+            .succes{
+                border: 2px solid white;
+                background-color: #4CBB17;
+                color: white;
+                box-shadow: #7CFC00 0px 5px 15px;
+            }
+
+            .textarea {
+                width: 400px;
+                min-height: 250px;
+                resize: none;
+                border: 2px solid transparent;
+                border-radius: 10px;
+                font-size: 1.2rem;
+                overflow-y: scroll;
+                margin-left: 60px;
+            }
+
+            .counter {
+                display: inline-block;
+                margin-left: 50px;
+                font-size: 1.2rem;
+                font-weight: 300;
+                color: white;
+                border: 1px solid white;
+                border-radius: 10px;
+                padding: 15px 25px;
+            }
+
+            .detailCont {
+                width: 100%;
+                min-height: 200px;
+                padding-left: 40px;
+                margin-top: 60px;
+                display: flex;
+                flex-flow: column-reverse wrap;
+                justify-content: flex-end;
+                align-items: flex-start;
+            }
+            .detailAddress {
+                font-size: 1.5rem;
+                width: 150px;
+                letter-spacing: 10px;
+                color: white;
+                line-height: 2.5rem;
+                text-align: right;
+            }
+            
+            .red {
+                font-weight: bold;
+                color: #DC143C;
+            }
+        </style>
+    </head>
+    <body>
+        <nav>
+            <img class='logo' src="https://www.cloud-communications.be/wp-content/uploads/CloudCommunications_TAG-3-1536x565.png">
+            <p class="counter">0 address(es) in list</p>
+        </nav>
+
+       <div class="wrapper">
+            <div class="mainCont">
+                <div class="inputCont">
+                    <form id="form">
+                        <input type="text" id='inputField' name="inputField" placeholder="MAC Address">
+                        <button class="button">GO</button>
+                    </form>
+                    <div class="errorLog">
+                        <p class="errorTxt">Ready to scan</p>
+                    </div>
+                </div>
+                <textarea class='textarea'></textarea>
+            </div>
+
+            <div class="detailCont">
+            </div>
+       </div>
+        <script>
+            let form = document.querySelector('#form');
+            form.addEventListener('submit', submitForm);
+            let inputField = document.querySelector('#inputField');
+            let button = document.querySelector('.button');
+            button.addEventListener('click', submitForm);
+            let counter = document.querySelector('.counter');
+            let textarea = document.querySelector('.textarea');
+            let errorTxt = document.querySelector('.errorTxt');
+            let detailCont = document.querySelector('.detailCont');
+            let addresses = [];
+            const macAddressRegex = /^([0-9A-Fa-f]{2}[:-]?){6}$/;
+
+            window.onload = () => inputField.focus();
+
+            function submitForm(){
+                event.preventDefault();
+                inputField.value.trim();
+                if(inputField.value === ''){
+                    errorTxt.innerHTML = 'No value scanned';
+                    if(button.classList.contains('succes')){
+                        button.classList.remove('succes');
+                    }
+                    button.classList.add('error');
+                    inputField.focus();
+                    button.classList.add('error')
+                    return
+                }
+                if(!macAddressRegex.test(inputField.value)){
+                    errorTxt.innerHTML = 'Not a valid MAC address';
+                    if(button.classList.contains('succes')){
+                        button.classList.remove('succes');
+                    }
+                    button.classList.add('error');
+                    inputField.focus();
+                    button.classList.add('error')
+                    return
+                }
+                if(checkDuplicate(inputField.value)){
+                    errorTxt.innerHTML = 'Address already in list';
+                    if(button.classList.contains('succes')){
+                        button.classList.remove('succes');
+                    }
+                    button.classList.add('error');
+                    inputField.focus();
+                    button.classList.add('error')
+                    return 
+                }
+                else {
+                    errorTxt.innerHTML = 'Succes!';
+                    addresses.push(inputField.value);
+                    inputField.value = '';
+                    inputField.focus();
+                    button.classList.add('succes');
+                    generateList();
+                }      
+            }
+
+            function checkDuplicate(value){
+                return addresses.some(address => address === value);
+            }
+
+            function generateList(){
+                counter.innerHTML = ''+addresses.length+' address(es) in list';
+                textarea.value = addresses.join('\n');
+                
+                detailCont.innerHTML = '';
+                let arrayLength = addresses.length;
+                for(i=0;i<addresses.length;i++){
+                    if(addresses[i] === undefined){
+                        return
+                    } else {
+                        let splitAddress = addresses[i].split('');
+                        let htmlAddress = '';
+                        for(x=0;x<splitAddress.length;x++){
+                            if(x > splitAddress.length - 5){
+                                htmlAddress += '<span class="span red">'+splitAddress[x]+'</span>'
+                            } else {
+                                htmlAddress += '<span class="span">'+splitAddress[x]+'</span>'
+                            }
+                        }
+                        detailCont.innerHTML += '<p class="detailAddress">'+htmlAddress+'</p>';
+                    }
+                }
+            }
+
+        </script>
+    </body>
+</html>
